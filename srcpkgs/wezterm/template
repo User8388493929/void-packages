@@ -1,23 +1,26 @@
 # Template file for 'wezterm'
 pkgname=wezterm
 version=20240203
-revision=2
-_srcver=${version}-110809-5046fc22
+revision=3
 archs="x86_64* i686* aarch64* arm*" # ring
 build_style=cargo
 configure_args="--no-default-features --features wezterm-gui/distro-defaults,wezterm-gui/wayland"
-hostmakedepends="pkg-config zlib-devel"
+hostmakedepends="pkg-config zlib-devel git"
 makedepends="fontconfig-devel freetype-devel harfbuzz-devel openssl-devel
  libssh2-devel libX11-devel libxkbcommon-devel wayland-devel xcb-util-devel
- xcb-util-image-devel xcb-util-keysyms-devel xcb-util-wm-devel zlib-devel"
+ xcb-util-image-devel xcb-util-keysyms-devel xcb-util-wm-devel zlib-devel
+ libgit2-devel sqlite-devel"
 depends="noto-fonts-emoji fonts-roboto-ttf wezterm-terminfo-${version}_${revision}"
 short_desc="GPU-accelerated cross-platform terminal emulator and multiplexer"
 maintainer="Joseph Benden <joe@benden.us>"
 license="MIT"
 homepage="https://wezfurlong.org/wezterm/"
 changelog="https://wezfurlong.org/wezterm/changelog.html"
-distfiles="https://github.com/wez/wezterm/releases/download/${_srcver}/wezterm-${_srcver}-src.tar.gz"
-checksum=df60b1081d402b5a9239cc4cef16fc699eab68bbbeac9c669cb5d991a6010b2c
+
+do_fetch() {
+	git clone https://github.com/wez/wezterm.git ${wrksrc} --depth 1
+	cd ${wrksrc}
+}
 
 do_check() {
 	# NOTE: cannot use build_style cargo do_check because of --release flag.
