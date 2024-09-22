@@ -2,13 +2,36 @@
 pkgname=floorp-bin
 version=11.18.1
 revision=1
-build_style=gnu-configure
-hostmakedepends=""
-makedepends="optipng ImageMagick"
-depends="alsa-lib dbus-glib gtk3"
+build_style="fetch"
+hostmakedepends="optipng ImageMagick"
+depends="alsa-lib dbus-glib gtk+3"
 short_desc="Firefox-based web browser focused on performance and customizability - pre-compiled binary"
 maintainer="Fostonik <fostonik@protonmail.com>"
 license="MPL-2.0"
 homepage="https://floorp.app"
 distfiles="https://github.com/Floorp-Projects/Floorp/releases/download/v${version}/floorp-${version}.linux-x86_64.tar.bz2"
 checksum=7674917d08c9a27fb03df7516622ff354a429ac77c1d00840fc28133cede9e5f
+
+do_extract() {
+	vsrcextract floorp-${version}.linux-x86_64.tar.bz2
+}
+
+do_install() {
+	install ${FILESDIR}/floorp.png "${wrksrc}"
+	mkdir ${wrksrc}/icon
+	for i in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256; do
+		magick ${wrksrc}/floorp.png -resize ${i} "${wrksrc}/icon/${i}.png"
+		optipng "${wrksrc}/icon/${i}.png"
+		vinstall ${wrksrc}/icon/${i}.png 644 \
+		usr/share/icons/hicolor/${i}/apps firefox.png
+	done
+	rm ${wrksrc}/floorp.png
+
+	vmkdir usr/lib/floorp/
+	vcopy ${wrksrc}/* "usr/lib/floorp/"
+
+	vinstall ${FILESDIR}/vendor.js 644 usr/lib/floorp/browser/defaults/preferences
+	vinstall ${FILESDIR}/floorp.desktop 644 usr/share/applications
+
+	ln -sf floorp ${DESTDIR}/usr/lib/floorp/floorp-bin
+}
