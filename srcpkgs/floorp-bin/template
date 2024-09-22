@@ -1,7 +1,7 @@
 # Template file for 'floorp-bin'
 pkgname=floorp-bin
 version=11.18.1
-revision=1
+revision=2
 build_style="fetch"
 hostmakedepends="optipng ImageMagick"
 depends="alsa-lib dbus-glib gtk+3"
@@ -17,6 +17,9 @@ do_extract() {
 }
 
 do_install() {
+	vmkdir usr/lib/floorp/
+	vcopy "${wrksrc}/*" "usr/lib/floorp/"
+
 	install ${FILESDIR}/floorp.png "${wrksrc}"
 	mkdir ${wrksrc}/icon
 	for i in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256; do
@@ -25,13 +28,12 @@ do_install() {
 		vinstall ${wrksrc}/icon/${i}.png 644 \
 		usr/share/icons/hicolor/${i}/apps firefox.png
 	done
-	rm ${wrksrc}/floorp.png
-
-	vmkdir usr/lib/floorp/
-	vcopy ${wrksrc}/* "usr/lib/floorp/"
 
 	vinstall ${FILESDIR}/vendor.js 644 usr/lib/floorp/browser/defaults/preferences
 	vinstall ${FILESDIR}/floorp.desktop 644 usr/share/applications
 
-	ln -sf floorp ${DESTDIR}/usr/lib/floorp/floorp-bin
+	ln -sf floorp "${DESTDIR}/usr/lib/floorp/floorp-bin"
+
+	vmkdir usr/bin/
+	ln -s "/usr/lib/floorp/floorp" "${DESTDIR}/usr/bin/floorp"
 }
